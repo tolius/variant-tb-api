@@ -1,0 +1,108 @@
+{
+  "version": 3,
+  "configurePresets": [
+    {
+      "name": "antichess",
+      "hidden": true,
+      "cacheVariables": { "EGTB_VARIANT": "ANTI" }
+    },
+    {
+      "name": "atomic",
+      "hidden": true,
+      "cacheVariables": { "EGTB_VARIANT": "ATOMIC" }
+    },
+    {
+      "name": "linux-base",
+      "description": "Target the Windows Subsystem for Linux (WSL) or a remote Linux system.",
+      "hidden": true,
+      "generator": "Ninja",
+      "binaryDir": "${sourceDir}/out/build/${presetName}",
+      "installDir": "${sourceDir}/out/install/${presetName}",
+      "condition": {
+        "type": "equals",
+        "lhs": "${hostSystemName}",
+        "rhs": "Linux"
+      },
+      "vendor": { "microsoft.com/VisualStudioRemoteSettings/CMake/1.0": { "sourceDir": "$env{HOME}/.vs/$ms{projectDirName}" } }
+    },
+    {
+      "name": "linux-debug-antichess",
+      "displayName": "Linux Debug antichess",
+      "inherits": [ "linux-base", "antichess" ],
+      "cacheVariables": { "CMAKE_BUILD_TYPE": "Debug" }
+    },
+    {
+      "name": "linux-release-antichess",
+      "displayName": "Linux Release antichess",
+      "inherits": [ "linux-base", "antichess" ],
+      "cacheVariables": { "CMAKE_BUILD_TYPE": "Release" }
+    },
+    {
+      "name": "linux-debug-atomic",
+      "displayName": "Linux Debug atomic",
+      "inherits": [ "linux-base", "atomic" ],
+      "cacheVariables": { "CMAKE_BUILD_TYPE": "Debug" }
+    },
+    {
+      "name": "linux-release-atomic",
+      "displayName": "Linux Release atomic",
+      "inherits": [ "linux-base", "atomic" ],
+      "cacheVariables": { "CMAKE_BUILD_TYPE": "Release" }
+    },
+    {
+      "name": "windows-base",
+      "description": "Target Windows (64-bit) with the Visual Studio development environment.",
+      "hidden": true,
+      "generator": "Ninja",
+      "binaryDir": "${sourceDir}/out/build/${presetName}",
+      "installDir": "${sourceDir}/out/install/${presetName}",
+      "architecture": {
+        "value": "x64",
+        "strategy": "external"
+      },
+      "cacheVariables": {
+        "CMAKE_C_COMPILER": "cl.exe",
+        "CMAKE_CXX_COMPILER": "cl.exe"
+      },
+      "condition": {
+        "type": "equals",
+        "lhs": "${hostSystemName}",
+        "rhs": "Windows"
+      }
+    },
+    {
+      "name": "x64-debug-antichess",
+      "displayName": "x64 Debug antichess",
+      "inherits": [ "windows-base", "antichess" ],
+      "cacheVariables": { "CMAKE_BUILD_TYPE": "Debug" }
+    },
+    {
+      "name": "x64-release-antichess",
+      "displayName": "x64 Release antichess",
+      "inherits": [ "windows-base", "antichess" ],
+      "cacheVariables": { "CMAKE_BUILD_TYPE": "Release" }
+    },
+    {
+      "name": "x64-debug-atomic",
+      "displayName": "x64 Debug atomic",
+      "inherits": [ "windows-base", "atomic" ],
+      "cacheVariables": { "CMAKE_BUILD_TYPE": "Debug" }
+    },
+    {
+      "name": "x64-release-atomic",
+      "displayName": "x64 Release atomic",
+      "inherits": [ "windows-base", "atomic" ],
+      "cacheVariables": { "CMAKE_BUILD_TYPE": "Release" }
+    }
+  ],
+  "buildPresets": [
+    { "name": "linux-debug-antichess", "configurePreset": "linux-debug-antichess" },
+    { "name": "linux-release-antichess", "configurePreset": "linux-release-antichess" },
+    { "name": "linux-debug-atomic", "configurePreset": "linux-debug-atomic" },
+    { "name": "linux-release-atomic", "configurePreset": "linux-release-atomic" },
+    { "name": "x64-debug-antichess", "configurePreset": "x64-debug-antichess" },
+    { "name": "x64-release-antichess", "configurePreset": "x64-release-antichess" },
+    { "name": "x64-debug-atomic", "configurePreset": "x64-debug-atomic" },
+    { "name": "x64-release-atomic", "configurePreset": "x64-release-atomic" }
+  ]
+}
