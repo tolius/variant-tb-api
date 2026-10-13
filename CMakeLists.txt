@@ -1,8 +1,8 @@
 cmake_minimum_required(VERSION 3.16.0)
 
 # Variant of the build (set by the presets *-antichess / *-atomic):
-# ANTI = antichess (library antichess_tb_api, .an0 files),
-# ATOMIC = atomic (library atomic_tb_api, .at0 files)
+# ANTI = antichess (library antichess_tb_api, .an1 files),
+# ATOMIC = atomic (library atomic_tb_api, .at1 files)
 set(EGTB_VARIANT "ANTI" CACHE STRING "Variant: ANTI or ATOMIC")
 set_property(CACHE EGTB_VARIANT PROPERTY STRINGS ANTI ATOMIC)
 if(EGTB_VARIANT STREQUAL "ANTI")

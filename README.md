@@ -3,10 +3,12 @@
 This is an API for reading data from the [antichess](https://en.wikipedia.org/wiki/Antichess) and [atomic chess](https://en.wikipedia.org/wiki/Atomic_chess) endgame tablebases (Lichess rules) with DTW (Depth To Win) metric.
 
 One source tree builds either library; the variant is chosen at compile time:
-- `ANTI`: the library `antichess_tb_api` (header `src/antichess_tb_api.h`, tables `.an0`, functions `antichess_tb_*`, C++ namespace `AntichessTb`);
-- `ATOMIC`: the library `atomic_tb_api` (header `src/atomic_tb_api.h`, tables `.at0`, functions `atomic_tb_*`, C++ namespace `AtomicTb`).
+- `ANTI`: the library `antichess_tb_api` (header `src/antichess_tb_api.h`, tables `.an1`, functions `antichess_tb_*`, C++ namespace `AntichessTb`);
+- `ATOMIC`: the library `atomic_tb_api` (header `src/atomic_tb_api.h`, tables `.at1`, functions `atomic_tb_*`, C++ namespace `AtomicTb`).
 
 The internal code is written in the namespace `VariantTb`, a macro (`src/tb/variant_tb.h`) that becomes `AntichessTb` or `AtomicTb`, so both libraries can be linked into one program.
+
+The `.an1` / `.at1` tables store the DTW of every position and, only in the tables that need it, a reduced DTZ (whether a win or loss is decided within the 50-move rule). They give the same results as the `.an0` / `.at0` tables with the full DTZ and are about 30% smaller.
 
 ## Building
 
@@ -24,7 +26,7 @@ The library needs zlib: the CMake build compiles zlib-ng (`src/tb/egtb/dictzip/z
 
 The API represents 3 functions:
 1. **antichess_tb_init** should be called once at the very beginning. If initialisation is successful, the function returns 0.
-2. **antichess_tb_add_path** should be called once before probing, specifying the path to the folder where all tablebase files (`.an0`) are located. If all 714 tables with 2-4 pieces are successfully loaded, the function returns 0; otherwise the number of missing tables as a negative value.
+2. **antichess_tb_add_path** should be called once before probing, specifying the path to the folder where all tablebase files (`.an1`) are located. If all 714 tables with 2-4 pieces are successfully loaded, the function returns 0; otherwise the number of missing tables as a negative value.
 3. **antichess_tb_probe_dtw** is used for probing antichess positions:
 - ***white_squares***/***black_squares*** should have values from 0 (a1), 1 (b1), etc. to 63 (h8).
 - ***white_pieces***/***black_pieces*** should have values from 1 to 6 for PNBRQK (only the least significant three bits are taken into account).
@@ -38,7 +40,7 @@ If there are no errors, the function sets the value of ***dtw***. The absolute v
 
 The API represents 3 functions:
 1. **atomic_tb_init** should be called once at the very beginning. If initialisation is successful, the function returns 0.
-2. **atomic_tb_add_path** should be called once before probing, specifying the path to the folder where all tablebase files (`.at0`) are located. If all 145 tables with 3-5 pieces are successfully loaded, the function returns 0; otherwise the number of missing tables as a negative value.
+2. **atomic_tb_add_path** should be called once before probing, specifying the path to the folder where all tablebase files (`.at1`) are located. If all 145 tables with 3-5 pieces are successfully loaded, the function returns 0; otherwise the number of missing tables as a negative value.
 3. **atomic_tb_probe_dtw** is used for probing atomic positions:
 - ***white_squares***/***black_squares*** should have values from 0 (a1), 1 (b1), etc. to 63 (h8).
 - ***white_pieces***/***black_pieces*** should have values from 1 to 6 for PNBRQK (only the least significant three bits are taken into account). Each side must have exactly one king.

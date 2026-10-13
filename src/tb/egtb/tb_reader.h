@@ -16,7 +16,7 @@
 namespace VariantTb {
 
 constexpr bool     DTZ101_AS_DRAW  = false;
-constexpr bool     ALWAYS_SAVE_DTZ = true;
+constexpr bool     ALWAYS_SAVE_DTZ = false; // .an1 / .at1: DTZ reduced to 0 / 100 / 101, only where needed
 constexpr bool     DO_EP_POSITIONS = true;
 constexpr size_t   MAX_IDX_SIZE    = 28;
 
@@ -25,9 +25,10 @@ constexpr uint16_t EGTB_HAS_DTZ           = 1 << 1;
 constexpr uint16_t EGTB_VAL_BIG           = 1 << 2;
 constexpr uint16_t EGTB_VAL_12BIT         = 1 << 3;
 constexpr uint16_t EGTB_DTZ101_AS_DRAW    = 1 << 4;
-//...
+constexpr uint16_t EGTB_DTZ_REDUCED       = 1 << 5; // DTZ stored as 0 (<= 99), 100, 101 (>= 101);
+                                                    // no DTZ column: no DTZ >= 100 in the table
 constexpr uint16_t EGTB_SKIP_ONLY_MOVES   = 1 << 6; // reserved
-constexpr uint16_t EGTB_VAL_DTZ_SEPARATED = 1 << 7; // reserved
+constexpr uint16_t EGTB_VAL_DTZ_SEPARATED = 1 << 7; // all values, then all DTZ bytes
 
 constexpr int16_t  DRAW  = 0x3333;
 constexpr int16_t  NONE  = 0x5555;
@@ -73,7 +74,7 @@ protected:
 	// is_mirrored (optional): set if get_idx() flipped the board horizontally
 	std::tuple<size_t, bool> board_to_index(const Position& board, bool* is_mirrored = nullptr) const;
 	size_t board_to_key(const Position& board, bool is_ep = false, bool* is_mirrored = nullptr) const;
-	void read_val_12bit(char* p_bytes, size_t key, const char* p_data) const;
+	void read_val_12bit(char* p_bytes, size_t key, const char* p_data, bool with_dtz) const;
 	val_dtz read_one(size_t key, bool is_compressed = true);
 	val_dtz load_one(const char* tb_bytes, bool is_compressed, bool val_big) const;
 

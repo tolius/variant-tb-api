@@ -201,16 +201,16 @@ size_t TB_Reader::board_to_key(const Position& board, bool is_ep, bool* is_mirro
 	return key;
 }
 
-void TB_Reader::read_val_12bit(char* p_bytes, size_t key, const char* p_data) const
+void TB_Reader::read_val_12bit(char* p_bytes, size_t key, const char* p_data, bool with_dtz) const
 {
 	if (key % 2 == 0) {
-		if (has_dtz)
+		if (with_dtz)
 			*p_bytes++ = *p_data++;
 		p_bytes[0] = p_data[0] >> 4;
 		p_bytes[1] = (p_data[0] << 4) | ((p_data[1] & 0xF0) >> 4);
 	}
 	else {
-		if (has_dtz) {
+		if (with_dtz) {
 			uint8_t dtz = (reinterpret_cast<const uint8_t&>(p_data[0]) << 4) | (reinterpret_cast<const uint8_t&>(p_data[1]) >> 4);
 			p_data++;
 			*p_bytes++ = reinterpret_cast<char&>(dtz);
@@ -255,13 +255,22 @@ val_dtz TB_Reader::read_one(size_t key, bool is_compressed)
 		std::lock_guard<std::mutex> lock(mtx_dz);
 		if (tbtable->header_size + i + num_bytes > dz_get_orig_length(dz_header))
 			error("read_one: wrong size");
-		if ((num_bytes > 1) && (tb_flags & EGTB_VAL_DTZ_SEPARATED)) {
-			if (num_bytes != 3 || !val_big)
-				error("read_one: VAL_DTZ_Separated format doesn't support 1-byte VAL");
-			int err = dz_read(dz_header, (unsigned long)(tbtable->header_size + key * 2), 2, &tb_bytes[1]);
+		if (has_dtz && (tb_flags & EGTB_VAL_DTZ_SEPARATED)) {
+			// All values (1 or 2 bytes, or 12 bits), then all DTZ bytes
+			size_t vals_size = val_12bit ? (3 * size2 + 1) / 2 : size2 * (num_bytes - 1);
+			int err;
+			if (val_12bit) {
+				char data[2];
+				err = dz_read(dz_header, (unsigned long)(tbtable->header_size + key * 3 / 2), 2, data);
+				if (err == 0)
+					read_val_12bit(&tb_bytes[1], key, data, false);
+			}
+			else {
+				err = dz_read(dz_header, (unsigned long)(tbtable->header_size + key * (num_bytes - 1)), num_bytes - 1, &tb_bytes[1]);
+			}
 			if (err != 0)
 				error("read_one: can't read VAL from the file");
-			err = dz_read(dz_header, (unsigned long)(tbtable->header_size + 2 * size2 + key), 1, &tb_bytes[0]);
+			err = dz_read(dz_header, (unsigned long)(tbtable->header_size + vals_size + key), 1, &tb_bytes[0]);
 			if (err != 0)
 				error("read_one: can't read DTZ from the file");
 		}
@@ -270,7 +279,7 @@ val_dtz TB_Reader::read_one(size_t key, bool is_compressed)
 			int err = dz_read(dz_header, (unsigned long)(tbtable->header_size + i), num_bytes, data);
 			if (err != 0)
 				error("Can't read data from the file");
-			read_val_12bit(tb_bytes, key, data);
+			read_val_12bit(tb_bytes, key, data, has_dtz);
 		}
 		else {
 			int err = dz_read(dz_header, (unsigned long)(tbtable->header_size + i), num_bytes, tb_bytes);
