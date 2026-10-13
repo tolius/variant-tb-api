@@ -3,6 +3,7 @@
 #include "tb/types.h"
 #include "tb/thread.h"
 #include "tb/egtb/tb_reader.h"
+#include "crc_check.h"
 
 #include <algorithm>
 #include <tuple>
@@ -120,5 +121,6 @@ int main(int argc, char* argv[])
 		return -104;
 
 	res = tests();
-	return res;
+	int res_crc = crc_tests(egtb_path);
+	return res != 0 ? res : res_crc;
 }

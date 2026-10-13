@@ -4,6 +4,7 @@
 #include "tb/thread.h"
 #include "tb/movegen.h"
 #include "tb/egtb/tb_reader.h"
+#include "crc_check.h"
 
 #include <algorithm>
 #include <tuple>
@@ -402,5 +403,6 @@ int main(int argc, char* argv[])
 
 	res = tests();
 	int res_lines = line_tests();
-	return res != 0 ? res : res_lines;
+	int res_crc = crc_tests(egtb_path);
+	return res != 0 ? res : res_lines != 0 ? res_lines : res_crc;
 }

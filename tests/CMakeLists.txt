@@ -8,6 +8,7 @@ set(CMAKE_CXX_STANDARD_REQUIRED ON)
 # library target
 add_executable(${PROJECT_NAME}
 	test_${VARIANT_NAME}.cpp
+	crc_check.h
 )
 
 target_link_libraries(${PROJECT_NAME}
